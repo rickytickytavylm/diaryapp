@@ -178,12 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tag.className =
         "cursor-pointer border border-slate-600 text-white px-3 py-1 rounded-full hover:bg-slate-700 select-none";
       tag.innerText = feeling;
-      tag.addEventListener("click", (e) => {
-        e.preventDefault();
-        toggleFeeling(tag, feeling);
-      });
-      tag.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
+      tag.addEventListener("pointerdown", () => {
         toggleFeeling(tag, feeling);
       });
       feelingsContainer.appendChild(tag);
