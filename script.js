@@ -175,23 +175,47 @@ const feelingsList = [
       li.innerHTML = `
         <div class="flex justify-between items-center">
           <span>${entry.situation.substring(0, 30)}...</span>
-          <div class="flex gap-2">
-            <button class="text-sm hover:underline copy-btn" onclick='copyEntry(${index})'>Скопировать</button>
-            <button class="text-sm hover:underline open-btn" onclick='openEntry(${index})'>Открыть</button>
+          <div class="flex gap-3">
+            <button class="px-3 py-1 rounded-md copy-btn" onclick='copyEntry(${index})'>Скопировать</button>
+            <button class="px-3 py-1 rounded-md open-btn" onclick='openEntry(${index})'>Открыть</button>
           </div>
         </div>`;
       entriesList.appendChild(li);
       
       // Style buttons after they are added to the DOM
       const copyBtn = li.querySelector('.copy-btn');
-      copyBtn.style.color = "var(--button-primary)";
+      copyBtn.style.backgroundColor = "var(--button-primary)";
+      copyBtn.style.color = "white";
+      copyBtn.style.fontWeight = "500";
+      copyBtn.style.border = "none";
+      copyBtn.style.transition = "background-color 0.3s ease";
+      
+      copyBtn.addEventListener("mouseenter", () => {
+        copyBtn.style.backgroundColor = "var(--button-primary-hover)";
+      });
+      
+      copyBtn.addEventListener("mouseleave", () => {
+        copyBtn.style.backgroundColor = "var(--button-primary)";
+      });
       
       const openBtn = li.querySelector('.open-btn');
-      openBtn.style.color = "var(--button-success)";
+      openBtn.style.backgroundColor = "var(--button-success)";
+      openBtn.style.color = "white";
+      openBtn.style.fontWeight = "500";
+      openBtn.style.border = "none";
+      openBtn.style.transition = "background-color 0.3s ease";
+      
+      openBtn.addEventListener("mouseenter", () => {
+        openBtn.style.backgroundColor = "var(--button-success-hover)";
+      });
+      
+      openBtn.addEventListener("mouseleave", () => {
+        openBtn.style.backgroundColor = "var(--button-success)";
+      });
     });
   
     const controlLi = document.createElement("li");
-    controlLi.className = "flex flex-col gap-2 mt-4 items-center";
+    controlLi.className = "flex flex-col gap-3 mt-6 mb-12 items-center";
   
     const addBtn = document.createElement("button");
     addBtn.className = "px-6 py-2 rounded-xl text-white";
@@ -225,8 +249,14 @@ const feelingsList = [
       }
     };
     controlLi.appendChild(clearBtn);
+    
+    // Add bottom spacer for better mobile experience
+    const spacerLi = document.createElement("li");
+    spacerLi.className = "h-20"; // Height of 5rem (80px)
+    spacerLi.style.minHeight = "80px";
   
     entriesList.appendChild(controlLi);
+    entriesList.appendChild(spacerLi);
   }
   
   function copyEntry(index) {
