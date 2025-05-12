@@ -1,5 +1,46 @@
 // script.js
 
+// Theme switching functionality
+function initTheme() {
+  const themeToggle = document.getElementById('themeToggle');
+  const sunIcon = document.querySelector('.sun-icon');
+  const moonIcon = document.querySelector('.moon-icon');
+  const themeText = document.querySelector('.theme-text');
+  
+  // Check for saved theme preference or use default light theme
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    sunIcon.style.display = 'none';
+    moonIcon.style.display = 'block';
+    themeText.textContent = 'Тёмная тема';
+  } else {
+    themeText.textContent = 'Светлая тема';
+  }
+  
+  // Add event listener to theme toggle button
+  themeToggle.addEventListener('click', () => {
+    // Check current theme
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+      // Switch to light theme
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+      sunIcon.style.display = 'block';
+      moonIcon.style.display = 'none';
+      themeText.textContent = 'Светлая тема';
+    } else {
+      // Switch to dark theme
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
+      themeText.textContent = 'Тёмная тема';
+    }
+  });
+}
+
 const feelingsList = [
     "тревога",
     "страх",
@@ -28,11 +69,19 @@ const feelingsList = [
   
   function toggleFeeling(tag, feeling) {
     if (selectedFeelings.has(feeling)) {
+      // Deselect feeling
       selectedFeelings.delete(feeling);
-      tag.classList.remove("bg-slate-500");
+      tag.style.backgroundColor = "var(--tag-bg)";
+      tag.style.color = "var(--input-text)";
+      tag.style.borderColor = "var(--input-border)";
+      tag.style.fontWeight = "normal";
     } else {
+      // Select feeling
       selectedFeelings.add(feeling);
-      tag.classList.add("bg-slate-500");
+      tag.style.backgroundColor = "var(--tag-bg-selected)";
+      tag.style.color = "var(--tag-selected-text)";
+      tag.style.borderColor = "var(--tag-border-selected)";
+      tag.style.fontWeight = "bold";
     }
   }
   
@@ -89,9 +138,12 @@ const feelingsList = [
     document.getElementById("thoughts").value = "";
     document.getElementById("outcome").value = "";
     selectedFeelings.clear();
-    Array.from(feelingsContainer.children).forEach((el) =>
-      el.classList.remove("bg-slate-500")
-    );
+    Array.from(feelingsContainer.children).forEach((el) => {
+      el.style.backgroundColor = "var(--tag-bg)";
+      el.style.color = "var(--input-text)";
+      el.style.borderColor = "var(--input-border)";
+      el.style.fontWeight = "normal";
+    });
   
     showIndicator(document.getElementById("saveSuccess"));
     goToStep(5);
@@ -115,29 +167,56 @@ const feelingsList = [
   
     entries.forEach((entry, index) => {
       const li = document.createElement("li");
-      li.className = "p-2 bg-slate-700 text-white rounded shadow-sm flex flex-col gap-2";
+      li.className = "p-2 rounded shadow-sm flex flex-col gap-2";
+      li.style.backgroundColor = "var(--card-bg)";
+      li.style.color = "var(--card-text)";
+      li.style.border = "1px solid var(--card-border)";
+      
       li.innerHTML = `
         <div class="flex justify-between items-center">
           <span>${entry.situation.substring(0, 30)}...</span>
           <div class="flex gap-2">
-            <button class="text-sm text-blue-400 hover:underline" onclick='copyEntry(${index})'>Скопировать</button>
-            <button class="text-sm text-green-400 hover:underline" onclick='openEntry(${index})'>Открыть</button>
+            <button class="text-sm hover:underline copy-btn" onclick='copyEntry(${index})'>Скопировать</button>
+            <button class="text-sm hover:underline open-btn" onclick='openEntry(${index})'>Открыть</button>
           </div>
         </div>`;
       entriesList.appendChild(li);
+      
+      // Style buttons after they are added to the DOM
+      const copyBtn = li.querySelector('.copy-btn');
+      copyBtn.style.color = "var(--button-primary)";
+      
+      const openBtn = li.querySelector('.open-btn');
+      openBtn.style.color = "var(--button-success)";
     });
   
     const controlLi = document.createElement("li");
     controlLi.className = "flex flex-col gap-2 mt-4 items-center";
   
     const addBtn = document.createElement("button");
-    addBtn.className = "px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700";
+    addBtn.className = "px-6 py-2 rounded-xl text-white";
+    addBtn.style.backgroundColor = "var(--button-primary)";
+    addBtn.style.transition = "background-color 0.3s ease";
+    addBtn.addEventListener("mouseenter", () => {
+      addBtn.style.backgroundColor = "var(--button-primary-hover)";
+    });
+    addBtn.addEventListener("mouseleave", () => {
+      addBtn.style.backgroundColor = "var(--button-primary)";
+    });
     addBtn.textContent = "➕ Добавить новое событие";
     addBtn.onclick = () => goToStep(1);
     controlLi.appendChild(addBtn);
   
     const clearBtn = document.createElement("button");
-    clearBtn.className = "px-6 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600";
+    clearBtn.className = "px-6 py-2 rounded-xl text-white";
+    clearBtn.style.backgroundColor = "var(--button-danger)";
+    clearBtn.style.transition = "background-color 0.3s ease";
+    clearBtn.addEventListener("mouseenter", () => {
+      clearBtn.style.backgroundColor = "var(--button-danger-hover)";
+    });
+    clearBtn.addEventListener("mouseleave", () => {
+      clearBtn.style.backgroundColor = "var(--button-danger)";
+    });
     clearBtn.textContent = "🗑 Очистить дневник";
     clearBtn.onclick = () => {
       if (confirm("Вы точно хотите удалить все записи?")) {
@@ -168,10 +247,34 @@ const feelingsList = [
   }
   
   document.addEventListener("DOMContentLoaded", () => {
+    // Initialize theme functionality
+    initTheme();
+    
     if (feelingsContainer) {
       feelingsList.forEach((feeling) => {
         const tag = document.createElement("div");
-        tag.className = "cursor-pointer border border-slate-600 text-white px-3 py-1 rounded-full hover:bg-slate-700 select-none";
+        tag.className = "cursor-pointer border px-3 py-1 rounded-full select-none";
+        tag.style.borderColor = "var(--input-border)";
+        tag.style.color = "var(--input-text)";
+        tag.style.backgroundColor = "var(--tag-bg)";
+        
+        // Add hover effect
+        tag.addEventListener("mouseenter", () => {
+          tag.style.backgroundColor = "var(--tag-hover)";
+        });
+        
+        tag.addEventListener("mouseleave", () => {
+          if (!selectedFeelings.has(feeling)) {
+            tag.style.backgroundColor = "var(--tag-bg)";
+            tag.style.color = "var(--input-text)";
+            tag.style.borderColor = "var(--input-border)";
+          } else {
+            tag.style.backgroundColor = "var(--tag-bg-selected)";
+            tag.style.color = "var(--tag-selected-text)";
+            tag.style.borderColor = "var(--tag-border-selected)";
+          }
+        });
+        
         tag.innerText = feeling;
         tag.addEventListener("pointerdown", () => {
           toggleFeeling(tag, feeling);
@@ -181,4 +284,3 @@ const feelingsList = [
     }
     renderEntries();
   });
-  
