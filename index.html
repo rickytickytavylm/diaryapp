@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Дневник чувств и мыслей</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -27,6 +31,14 @@
   </head>
   <body class="p-4 sm:p-6 min-h-screen overflow-auto">
     <div class="max-w-xl mx-auto space-y-6">
+      <!-- Логотип Leo_bot один раз сверху -->
+      <div
+        class="text-center text-white text-2xl mb-4"
+        style="font-family: 'Montserrat', sans-serif"
+      >
+        Leo_bot
+      </div>
+
       <!-- Экран 0 — вступление -->
       <div id="screen-0">
         <div class="bg-slate-800 bg-opacity-80 p-4 rounded-xl shadow-md mb-4">
@@ -59,7 +71,9 @@
 
       <!-- Экран 1 — ситуация -->
       <div id="screen-1" class="hidden space-y-4">
-        <label class="block font-semibold">Ситуация</label>
+        <p class="text-sm text-slate-400">
+          Пожалуйста, опишите, что именно произошло.
+        </p>
         <textarea
           id="situation"
           class="w-full p-2 bg-slate-800 text-white border border-slate-600 rounded"
@@ -75,7 +89,9 @@
 
       <!-- Экран 2 — мысли -->
       <div id="screen-2" class="hidden space-y-4">
-        <label class="block font-semibold">Мысли</label>
+        <p class="text-sm text-slate-400">
+          Опишите свои мысли по поводу ситуации.
+        </p>
         <textarea
           id="thoughts"
           class="w-full p-2 bg-slate-800 text-white border border-slate-600 rounded"
@@ -91,14 +107,10 @@
 
       <!-- Экран 3 — чувства -->
       <div id="screen-3" class="hidden space-y-4">
-        <label class="block font-semibold">Чувства</label>
+        <p class="text-sm text-slate-400">
+          Выберите как минимум три чувства, которые вы испытали.
+        </p>
         <div id="feelings" class="flex flex-wrap gap-2"></div>
-        <input
-          id="customFeeling"
-          type="text"
-          class="w-full p-2 bg-slate-800 text-white border border-slate-600 rounded"
-          placeholder="Или напишите своё чувство"
-        />
         <button
           onclick="goToStep(4)"
           class="bg-blue-600 text-white w-full py-3 rounded-xl"
@@ -109,9 +121,9 @@
 
       <!-- Экран 4 — итог -->
       <div id="screen-4" class="hidden space-y-4">
-        <label class="block font-semibold"
-          >Итог / Поведение / Последствия</label
-        >
+        <p class="text-sm text-slate-400">
+          Что вы сделали? Какой итог ситуации?
+        </p>
         <textarea
           id="outcome"
           class="w-full p-2 bg-slate-800 text-white border border-slate-600 rounded"
@@ -129,8 +141,15 @@
       <div id="screen-5" class="hidden space-y-4">
         <h2 class="text-xl font-bold">🗂 Сохранённые события</h2>
         <p class="text-sm text-slate-300">
-          Здесь вы можете скопировать любое событие и отправить его в
-          ИИ-консультанту.
+          Здесь вы можете открыть событие или скопировать его, а затем отправить
+          в Telegram-боте Leo во вкладке
+          <span class="inline-flex items-center gap-1"
+            ><img
+              src="https://telegram.org/img/t_logo.svg"
+              class="w-4 h-4 inline-block"
+            />
+            ИИ-консультант</span
+          >.
         </p>
         <ul id="entriesList" class="space-y-2"></ul>
         <button
@@ -141,159 +160,47 @@
         </button>
       </div>
 
-      <div
-        id="saveSuccess"
-        class="hidden p-2 bg-green-600 text-white text-sm text-center rounded fade-in"
-      >
-        ✅ Запись сохранена
-      </div>
-      <div
-        id="copySuccess"
-        class="hidden p-2 bg-blue-600 text-white text-sm text-center rounded fade-in"
-      >
-        📋 Скопировано
-      </div>
-      <div
-        id="validationError"
-        class="hidden p-2 bg-red-600 text-white text-sm text-center rounded fade-in"
-      >
-        ❗️Пожалуйста, заполните поле
+      <!-- Экран 6 — просмотр отдельного события -->
+      <div id="screen-6" class="hidden space-y-4">
+        <h2 class="text-xl font-bold">📖 Событие</h2>
+        <div
+          id="entryView"
+          class="text-sm text-slate-300 whitespace-pre-wrap bg-slate-800 p-4 rounded-xl"
+        ></div>
+        <button
+          onclick="goToStep(5)"
+          class="bg-blue-600 text-white w-full py-3 rounded-xl"
+        >
+          ← Назад к списку
+        </button>
       </div>
     </div>
 
-    <script>
-      const feelingsList = [
-        "тревога",
-        "страх",
-        "вина",
-        "грусть",
-        "злость",
-        "обида",
-        "радость",
-        "беспомощность",
-        "одиночество",
-        "усталость",
-        "надежда",
-        "разочарование",
-      ];
-      const feelingsContainer = document.getElementById("feelings");
+    <div
+      id="saveSuccess"
+      class="hidden p-2 bg-green-600 text-white text-sm text-center rounded fade-in"
+    >
+      ✅ Запись сохранена
+    </div>
+    <div
+      id="copySuccess"
+      class="hidden p-2 bg-blue-600 text-white text-sm text-center rounded fade-in"
+    >
+      📋 Скопировано
+    </div>
+    <div
+      id="validationError"
+      class="hidden p-2 bg-red-600 text-white text-sm text-center rounded fade-in"
+    >
+      ❗️Пожалуйста, заполните поле
+    </div>
+    <div
+      id="feelingsError"
+      class="hidden p-2 bg-red-600 text-white text-sm text-center rounded fade-in"
+    >
+      ❗️Выберите минимум три чувства
+    </div>
 
-      feelingsList.forEach((feeling) => {
-        const tag = document.createElement("div");
-        tag.className =
-          "cursor-pointer border border-slate-600 text-white px-3 py-1 rounded-full hover:bg-slate-700 select-none";
-        tag.innerText = feeling;
-        tag.addEventListener("click", () =>
-          tag.classList.toggle("bg-slate-500")
-        );
-        tag.addEventListener("touchstart", () =>
-          tag.classList.toggle("bg-slate-500")
-        );
-        feelingsContainer.appendChild(tag);
-      });
-
-      function goToStep(step) {
-        for (let i = 0; i <= 5; i++) {
-          const el = document.getElementById(`screen-${i}`);
-          if (el) el.classList.add("hidden");
-        }
-        const target = document.getElementById(`screen-${step}`);
-        if (target) target.classList.remove("hidden");
-      }
-
-      function validateAndGo(current, fieldId, next) {
-        const value = document.getElementById(fieldId).value.trim();
-        if (!value) {
-          showIndicator(document.getElementById("validationError"));
-          return;
-        }
-        goToStep(next);
-      }
-
-      function validateAndSave() {
-        const outcome = document.getElementById("outcome").value.trim();
-        if (!outcome) {
-          showIndicator(document.getElementById("validationError"));
-          return;
-        }
-        saveEntry();
-      }
-
-      function saveEntry() {
-        const selectedFeelings = Array.from(feelingsContainer.children)
-          .filter((el) => el.classList.contains("bg-slate-500"))
-          .map((el) => el.innerText);
-
-        const customFeeling = document.getElementById("customFeeling").value;
-        if (customFeeling) selectedFeelings.push(customFeeling);
-
-        const entry = {
-          situation: document.getElementById("situation").value,
-          thoughts: document.getElementById("thoughts").value,
-          feelings: selectedFeelings,
-          outcome: document.getElementById("outcome").value,
-        };
-
-        const entries = JSON.parse(
-          localStorage.getItem("diaryEntries") || "[]"
-        );
-        entries.push(entry);
-        localStorage.setItem("diaryEntries", JSON.stringify(entries));
-
-        document.getElementById("situation").value = "";
-        document.getElementById("thoughts").value = "";
-        document.getElementById("outcome").value = "";
-        document.getElementById("customFeeling").value = "";
-        Array.from(feelingsContainer.children).forEach((el) =>
-          el.classList.remove("bg-slate-500")
-        );
-
-        showIndicator(document.getElementById("saveSuccess"));
-        goToStep(5);
-        renderEntries();
-      }
-
-      function showIndicator(element) {
-        element.classList.remove("hidden");
-        element.classList.add("fade-in");
-        setTimeout(() => {
-          element.classList.add("hidden");
-          element.classList.remove("fade-in");
-        }, 2000);
-      }
-
-      function renderEntries() {
-        const entries = JSON.parse(
-          localStorage.getItem("diaryEntries") || "[]"
-        );
-        const entriesList = document.getElementById("entriesList");
-        entriesList.innerHTML = "";
-        entries.forEach((entry, index) => {
-          const li = document.createElement("li");
-          li.className =
-            "p-2 bg-slate-700 text-white rounded shadow-sm flex justify-between items-center";
-          li.innerHTML = `
-          <span>${entry.situation.substring(0, 30)}...</span>
-          <button class="text-sm text-blue-400 hover:underline" onclick='copyEntry(${index})'>Скопировать</button>
-        `;
-          entriesList.appendChild(li);
-        });
-      }
-
-      function copyEntry(index) {
-        const entries = JSON.parse(
-          localStorage.getItem("diaryEntries") || "[]"
-        );
-        const entry = entries[index];
-        const text = `Ситуация:\n${entry.situation}\n\nМысли:\n${
-          entry.thoughts
-        }\n\nЧувства:\n${entry.feelings.join(", ")}\n\nИтог:\n${entry.outcome}`;
-        navigator.clipboard
-          .writeText(text)
-          .then(() => showIndicator(document.getElementById("copySuccess")));
-      }
-
-      renderEntries();
-    </script>
+    <script src="script.js"></script>
   </body>
 </html>
