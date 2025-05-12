@@ -128,10 +128,18 @@ function renderEntries() {
     entriesList.appendChild(li);
   });
 
-  // добавить кнопку очистки
+  // кнопка добавить новое событие
+  const addBtn = document.createElement("button");
+  addBtn.className =
+    "mt-4 w-full py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700";
+  addBtn.textContent = "➕ Добавить новое событие";
+  addBtn.onclick = () => goToStep(1);
+  entriesList.appendChild(addBtn);
+
+  // кнопка очистки
   const clearBtn = document.createElement("button");
   clearBtn.className =
-    "mt-4 w-full py-2 bg-red-600 text-white rounded-xl hover:bg-red-700";
+    "mt-2 w-full py-2 bg-red-500 text-white rounded-xl hover:bg-red-600";
   clearBtn.textContent = "🗑 Очистить дневник";
   clearBtn.onclick = () => {
     if (confirm("Вы точно хотите удалить все записи?")) {
@@ -170,8 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tag.className =
         "cursor-pointer border border-slate-600 text-white px-3 py-1 rounded-full hover:bg-slate-700 select-none";
       tag.innerText = feeling;
-      tag.addEventListener("click", () => toggleFeeling(tag, feeling));
-      tag.addEventListener("touchstart", () => toggleFeeling(tag, feeling));
+      tag.addEventListener("click", (e) => {
+        e.preventDefault();
+        toggleFeeling(tag, feeling);
+      });
+      tag.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        toggleFeeling(tag, feeling);
+      });
       feelingsContainer.appendChild(tag);
     });
   }
