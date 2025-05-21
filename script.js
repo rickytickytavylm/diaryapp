@@ -515,106 +515,74 @@ window.openEntry = function(index) {
     dateString = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   }
   
-  // Создаем HTML для максимально компактного отображения записи без отступов
-  container.innerHTML = `
-    <div style="line-height: 1.1; margin-top: 0;">
-      <div class="text-xs opacity-70" style="margin: 0 0 2px 0;"><span class="font-bold">Дата:</span> ${dateString}</div>
-      <div>
-        <h3 class="font-bold text-xs inline">Ситуация:</h3>
-        <span class="text-xs">${entry.situation}</span>
-      </div>
-      <div>
-        <h3 class="font-bold text-xs inline">Мысли:</h3>
-        <span class="text-xs">${entry.thoughts}</span>
-      </div>
-      <div>
-        <h3 class="font-bold text-xs inline">Чувства:</h3>
-        <span class="flex flex-wrap gap-0.5 inline">
-          ${entry.feelings.map(feeling => 
-            `<span class="px-0.5 text-xs rounded" style="background-color: var(--tag-bg-selected); color: var(--tag-selected-text);">${feeling}</span>`
-          ).join('')}
-        </span>
-      </div>
-      <div>
-        <h3 class="font-bold text-xs inline">Итог:</h3>
-        <span class="text-xs">${entry.outcome}</span>
-      </div>
-    </div>
-  `;
+  // Очищаем контейнер
+  container.innerHTML = '';
   
-  // Добавляем кнопки
-  const buttonsContainer = document.createElement("div");
-  buttonsContainer.className = "flex gap-0.5 mt-0.5";
+  // Создаем карточку с записью
+  const card = document.createElement("div");
+  card.className = "card rounded-lg p-4";
+  card.style.backgroundColor = "var(--card-bg)";
+  card.style.border = "1px solid var(--card-border)";
+  card.style.color = "var(--card-text)";
   
-  // Кнопка назад (теперь первая)
+  // Создаем заголовок с датой
+  const header = document.createElement("div");
+  header.className = "mb-2";
+  
+  // Добавляем дату
+  const date = document.createElement("div");
+  date.className = "text-xs opacity-70 mb-3";
+  date.innerHTML = `<span class="font-bold">Дата:</span> ${dateString}`;
+  
+  // Создаем содержимое записи
+  const content = document.createElement("div");
+  content.className = "space-y-2";
+  
+  // Ситуация
+  const situation = document.createElement("div");
+  situation.innerHTML = `<span class="font-bold text-sm">Ситуация:</span> <span class="text-sm">${entry.situation}</span>`;
+  
+  // Мысли
+  const thoughts = document.createElement("div");
+  thoughts.innerHTML = `<span class="font-bold text-sm">Мысли:</span> <span class="text-sm">${entry.thoughts}</span>`;
+  
+  // Чувства
+  const feelings = document.createElement("div");
+  feelings.innerHTML = `<span class="font-bold text-sm">Чувства:</span> <span class="text-sm">${entry.feelings.join(', ')}</span>`;
+  
+  // Итог
+  const outcome = document.createElement("div");
+  outcome.innerHTML = `<span class="font-bold text-sm">Итог:</span> <span class="text-sm">${entry.outcome}</span>`;
+  
+  // Добавляем все элементы в содержимое
+  content.appendChild(situation);
+  content.appendChild(thoughts);
+  content.appendChild(feelings);
+  content.appendChild(outcome);
+  
+  // Добавляем все элементы в карточку
+  card.appendChild(header);
+  card.appendChild(date);
+  card.appendChild(content);
+  
+  // Добавляем карточку в контейнер
+  container.appendChild(card);
+  
+  // Добавляем невидимую кнопку назад для возможности вернуться
   const backButton = document.createElement("button");
-  backButton.className = "flex-1 py-0 px-1 rounded text-xs";
-  backButton.style.backgroundColor = "var(--button-secondary)";
-  backButton.style.color = "var(--text-color)";
-  backButton.style.transition = "all 0.2s ease";
-  backButton.style.fontWeight = "400";
-  backButton.style.boxShadow = "none";
-  backButton.style.maxWidth = "60px";
-  backButton.innerHTML = `
-    <div class="flex items-center justify-center gap-0.5">
-      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-      <span>Назад</span>
-    </div>
-  `;
-  
-  backButton.addEventListener("mouseover", function() {
-    this.style.backgroundColor = "var(--button-secondary-hover)";
-    this.style.transform = "translateY(-1px)";
-  });
-  
-  backButton.addEventListener("mouseout", function() {
-    this.style.backgroundColor = "var(--button-secondary)";
-    this.style.transform = "translateY(0)";
-  });
-  
+  backButton.style.position = "fixed";
+  backButton.style.opacity = "0";
+  backButton.style.pointerEvents = "none";
   backButton.addEventListener("click", function() {
     goToStep(5);
   });
+  container.appendChild(backButton);
   
-  // Кнопка копирования (теперь вторая)
-  const copyButton = document.createElement("button");
-  copyButton.className = "flex-1 py-0 px-1 rounded text-white text-xs";
-  copyButton.style.backgroundColor = "var(--button-primary)";
-  copyButton.style.transition = "all 0.2s ease";
-  copyButton.style.fontWeight = "400";
-  copyButton.style.boxShadow = "none";
-  copyButton.style.maxWidth = "60px";
-  copyButton.innerHTML = `
-    <div class="flex items-center justify-center gap-0.5">
-      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-      </svg>
-      <span>Скопировать</span>
-    </div>
-  `;
-  
-  copyButton.addEventListener("mouseover", function() {
-    this.style.backgroundColor = "var(--button-primary-hover)";
-    this.style.transform = "translateY(-1px)";
+  // Добавляем обработчик клика на карточку для возврата назад
+  card.style.cursor = "pointer";
+  card.addEventListener("click", function() {
+    goToStep(5);
   });
-  
-  copyButton.addEventListener("mouseout", function() {
-    this.style.backgroundColor = "var(--button-primary)";
-    this.style.transform = "translateY(0)";
-  });
-  
-  copyButton.addEventListener("click", function() {
-    window.copyEntry(index);
-  });
-  
-  // Добавляем кнопки в обратном порядке
-  buttonsContainer.appendChild(backButton);
-  buttonsContainer.appendChild(copyButton);
-  container.appendChild(buttonsContainer);
   
   goToStep(6);
 };
