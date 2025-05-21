@@ -46,26 +46,79 @@ function toggleFeeling(tag, feeling) {
   }
 }
 
-function goToStep(step) {
+// Делаем функцию доступной глобально
+// Сначала сохраняем оригинальную функцию
+function goToStepInternal(step) {
+  console.log(`goToStep called with step: ${step}`);
+  
   if (step === 4 && selectedFeelings.size < 3) {
+    console.log('Not enough feelings selected');
     showIndicator(document.getElementById("feelingsError"));
     return;
   }
+  
+  console.log('Hiding all screens');
+  for (let i = 0; i <= 6; i++) {
+    const el = document.getElementById(`screen-${i}`);
+    if (el) {
+      el.classList.add("hidden");
+      console.log(`Screen ${i} hidden`);
+    } else {
+      console.log(`Screen ${i} not found`);
+    }
+  }
+  
+  console.log(`Showing screen ${step}`);
+  const target = document.getElementById(`screen-${step}`);
+  if (target) {
+    target.classList.remove("hidden");
+    console.log(`Screen ${step} shown`);
+  } else {
+    console.error(`Target screen ${step} not found!`);
+  }
+}
+
+// Делаем функцию доступной глобально
+window.goToStep = goToStepInternal;
+
+// Для обратной совместимости с существующим кодом
+function goToStep(step) {
+  goToStepInternal(step);
+}
+
+// Делаем функцию validateAndGo доступной глобально
+window.validateAndGo = function(current, fieldId, next) {
+  console.log(`validateAndGo called: current=${current}, fieldId=${fieldId}, next=${next}`);
+  const field = document.getElementById(fieldId);
+  if (!field) {
+    console.error(`Field with id ${fieldId} not found!`);
+    return;
+  }
+  
+  const value = field.value.trim();
+  console.log(`Field value: "${value}"`); 
+  
+  if (!value) {
+    console.log('Empty value, showing validation error');
+    showIndicator(document.getElementById("validationError"));
+    return;
+  }
+  
+  console.log(`Validation passed, going to step ${next}`);
+  // Скрываем все экраны
   for (let i = 0; i <= 6; i++) {
     const el = document.getElementById(`screen-${i}`);
     if (el) el.classList.add("hidden");
   }
-  const target = document.getElementById(`screen-${step}`);
+  
+  // Показываем нужный экран
+  const target = document.getElementById(`screen-${next}`);
   if (target) target.classList.remove("hidden");
-}
+};
 
+// Для обратной совместимости
 function validateAndGo(current, fieldId, next) {
-  const value = document.getElementById(fieldId).value.trim();
-  if (!value) {
-    showIndicator(document.getElementById("validationError"));
-    return;
-  }
-  goToStep(next);
+  window.validateAndGo(current, fieldId, next);
 }
 
 function validateAndSave() {
@@ -137,17 +190,63 @@ function renderEntries() {
     emptyMessage.innerHTML = `
       <div class="text-xl font-medium mb-2">Нет записей</div>
       <p class="text-sm mb-4">Нажмите кнопку ниже, чтобы создать первую запись</p>
-      <button id="createFirstEntry" class="px-6 py-3 rounded-xl btn text-white w-full">
-        ➕ Создать запись
+      <button id="createFirstEntry" class="px-4 py-2 rounded-xl btn text-white w-full text-sm">
+        <div class="flex items-center justify-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Создать запись</span>
+        </div>
       </button>
     `;
     entriesList.appendChild(emptyMessage);
     
-    const createBtn = document.getElementById("createFirstEntry");
-    createBtn.style.backgroundColor = "var(--button-primary)";
-    createBtn.style.fontWeight = "700";
-    createBtn.style.boxShadow = "0 6px 12px rgba(58, 42, 109, 0.25)";
-    createBtn.style.transition = "all 0.3s ease";
+    // После добавления в DOM, находим кнопку и стилизуем её
+    setTimeout(() => {
+      const createBtn = document.getElementById("createFirstEntry");
+      if (!createBtn) {
+        console.error("Create button not found!");
+        return;
+      }
+      
+      console.log("Create button found, styling it");
+      createBtn.style.backgroundColor = "var(--button-primary)";
+      createBtn.style.fontWeight = "600";
+      createBtn.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
+      createBtn.style.transition = "all 0.3s ease";
+      
+      // Добавляем эффекты при наведении
+      createBtn.addEventListener("mouseover", function() {
+        this.style.backgroundColor = "var(--button-primary-hover)";
+        this.style.transform = "translateY(-1px)";
+        this.style.boxShadow = "0 3px 6px rgba(58, 42, 109, 0.25)";
+      });
+      
+      createBtn.addEventListener("mouseout", function() {
+        this.style.backgroundColor = "var(--button-primary)";
+        this.style.transform = "translateY(0)";
+        this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
+      });
+      
+      // Добавляем обработчик клика напрямую в HTML
+      createBtn.onclick = function() {
+        console.log("Create first entry button clicked");
+        // Скрываем все экраны
+        for (let i = 0; i <= 6; i++) {
+          const el = document.getElementById(`screen-${i}`);
+          if (el) el.classList.add("hidden");
+        }
+        // Показываем экран 1
+        const target = document.getElementById('screen-1');
+        if (target) target.classList.remove("hidden");
+        
+        // Очищаем выбранные чувства
+        selectedFeelings.clear();
+      };
+      
+      console.log("Create button setup complete");
+    }, 100); // Небольшая задержка, чтобы убедиться, что DOM обновлен
     
     return;
   }
@@ -318,18 +417,34 @@ function renderEntries() {
   controlLi.className = "flex flex-col gap-3 mt-6 mb-12 items-center";
 
   const addBtn = document.createElement("button");
-  addBtn.className = "px-6 py-2 rounded-xl text-white";
+  addBtn.className = "px-4 py-1.5 rounded-xl text-white text-sm";
   addBtn.style.backgroundColor = "var(--button-primary)";
-  addBtn.style.transition = "background-color 0.3s ease";
+  addBtn.style.transition = "all 0.3s ease";
+  addBtn.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
+  addBtn.style.fontWeight = "600";
+  
   addBtn.addEventListener("mouseover", () => {
     addBtn.style.backgroundColor = "var(--button-primary-hover)";
-    addBtn.style.transform = "translateY(-2px)";
+    addBtn.style.transform = "translateY(-1px)";
+    addBtn.style.boxShadow = "0 3px 6px rgba(58, 42, 109, 0.25)";
   });
+  
   addBtn.addEventListener("mouseout", () => {
     addBtn.style.backgroundColor = "var(--button-primary)";
     addBtn.style.transform = "translateY(0)";
+    addBtn.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
   });
-  addBtn.textContent = "➡ Добавить новое событие";
+  
+  addBtn.innerHTML = `
+    <div class="flex items-center justify-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Добавить запись</span>
+    </div>
+  `;
+  
   addBtn.onclick = () => {
     // Check if we're at the limit
     const entries = JSON.parse(localStorage.getItem("diaryEntries") || "[]");
@@ -337,7 +452,9 @@ function renderEntries() {
       showLimitWarning();
       return;
     }
-    resetForm();
+    // Очищаем выбранные чувства перед переходом к новой записи
+    selectedFeelings.clear();
+    // Переходим к первому шагу
     goToStep(1);
   };
   
@@ -431,19 +548,19 @@ window.openEntry = function(index) {
   
   // Добавляем кнопки
   const buttonsContainer = document.createElement("div");
-  buttonsContainer.className = "flex gap-3 mt-4";
+  buttonsContainer.className = "flex gap-2 mt-3";
   
   // Кнопка копирования
   const copyButton = document.createElement("button");
-  copyButton.className = "flex-1 py-2 px-3 rounded-xl text-white btn text-sm";
+  copyButton.className = "flex-1 py-1.5 px-2 rounded-lg text-white btn text-xs";
   copyButton.style.backgroundColor = "var(--button-primary)";
   copyButton.style.transition = "all 0.3s ease";
   copyButton.style.fontWeight = "600";
-  copyButton.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
-  copyButton.style.maxWidth = "180px";
+  copyButton.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
+  copyButton.style.maxWidth = "120px";
   copyButton.innerHTML = `
     <div class="flex items-center justify-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
         <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
       </svg>
@@ -454,13 +571,13 @@ window.openEntry = function(index) {
   copyButton.addEventListener("mouseover", function() {
     this.style.backgroundColor = "var(--button-primary-hover)";
     this.style.transform = "translateY(-1px)";
-    this.style.boxShadow = "0 3px 6px rgba(58, 42, 109, 0.25)";
+    this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.25)";
   });
   
   copyButton.addEventListener("mouseout", function() {
     this.style.backgroundColor = "var(--button-primary)";
     this.style.transform = "translateY(0)";
-    this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
+    this.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
   });
   
   copyButton.addEventListener("click", function() {
@@ -469,20 +586,20 @@ window.openEntry = function(index) {
   
   // Кнопка назад
   const backButton = document.createElement("button");
-  backButton.className = "flex-1 py-2 px-3 rounded-xl btn text-sm";
+  backButton.className = "flex-1 py-1.5 px-2 rounded-lg btn text-xs";
   backButton.style.backgroundColor = "var(--button-secondary)";
   backButton.style.color = "var(--text-color)";
   backButton.style.transition = "all 0.3s ease";
   backButton.style.fontWeight = "600";
-  backButton.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
-  backButton.style.maxWidth = "180px";
+  backButton.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
+  backButton.style.maxWidth = "120px";
   backButton.innerHTML = `
     <div class="flex items-center justify-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
-      <span>Назад к списку</span>
+      <span>Назад</span>
     </div>
   `;
   
@@ -521,46 +638,90 @@ window.deleteEntry = function(index) {
 
 function showLimitWarning() {
   // Create modal backdrop
-  const backdrop = document.createElement('div');
-  backdrop.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+  const backdrop = document.createElement("div");
+  backdrop.className = "fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center";
   document.body.appendChild(backdrop);
-
+  
   // Create modal content
-  const modal = document.createElement('div');
-  modal.className = 'bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-auto';
-  modal.style.backgroundColor = 'var(--card-bg)';
-  modal.style.color = 'var(--card-text)';
-  modal.style.border = '1px solid var(--card-border)';
-  modal.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-
-  modal.innerHTML = `
-    <h3 class="text-lg font-bold mb-4">Достигнут лимит записей</h3>
-    <p class="mb-4">Вы достигли максимального количества записей (7). Чтобы создать новую запись, вам необходимо удалить одну из существующих.</p>
-    <div class="flex justify-end gap-3">
-      <button id="cancelBtn" class="px-4 py-2 rounded-md">Отмена</button>
-      <button id="viewEntriesBtn" class="px-4 py-2 rounded-md">Перейти к записям</button>
-    </div>
-  `;
-  backdrop.appendChild(modal);
-
-  // Style buttons
-  const cancelBtn = document.getElementById('cancelBtn');
-  cancelBtn.style.backgroundColor = 'var(--button-danger)';
-  cancelBtn.style.color = 'white';
-
-  const viewEntriesBtn = document.getElementById('viewEntriesBtn');
-  viewEntriesBtn.style.backgroundColor = 'var(--button-primary)';
-  viewEntriesBtn.style.color = 'white';
-
-  // Add event listeners
-  cancelBtn.addEventListener('click', () => {
+  const modal = document.createElement("div");
+  modal.className = "bg-white p-5 rounded-xl max-w-sm mx-auto";
+  modal.style.backgroundColor = "var(--card-bg)";
+  modal.style.color = "var(--text-color)";
+  modal.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+  
+  // Создаем заголовок
+  const header = document.createElement("h2");
+  header.className = "text-lg font-bold mb-3 text-center";
+  header.style.color = "var(--text-color)";
+  header.textContent = "Достигнут лимит записей";
+  modal.appendChild(header);
+  
+  // Создаем текст сообщения
+  const message = document.createElement("p");
+  message.className = "mb-4 text-sm";
+  message.style.color = "var(--text-color)";
+  message.style.lineHeight = "1.4";
+  message.textContent = `Вы достигли максимального количества записей (7). Чтобы создать новую запись, вам необходимо удалить одну из существующих.`;
+  modal.appendChild(message);
+  
+  // Создаем контейнер для кнопок
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.className = "flex justify-center gap-3";
+  modal.appendChild(buttonsContainer);
+  
+  // Кнопка Отмена
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium";
+  cancelBtn.style.backgroundColor = "#F2F2F2";
+  cancelBtn.style.color = "var(--text-color)";
+  cancelBtn.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.1)";
+  cancelBtn.style.transition = "all 0.2s ease";
+  cancelBtn.textContent = "Отмена";
+  
+  cancelBtn.addEventListener("mouseover", function() {
+    this.style.backgroundColor = "#E5E5E5";
+    this.style.transform = "translateY(-1px)";
+  });
+  
+  cancelBtn.addEventListener("mouseout", function() {
+    this.style.backgroundColor = "#F2F2F2";
+    this.style.transform = "translateY(0)";
+  });
+  
+  cancelBtn.addEventListener("click", () => {
     document.body.removeChild(backdrop);
   });
-
-  viewEntriesBtn.addEventListener('click', () => {
+  
+  // Кнопка Перейти к записям
+  const goToEntriesBtn = document.createElement("button");
+  goToEntriesBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium text-white";
+  goToEntriesBtn.style.backgroundColor = "var(--button-primary)";
+  goToEntriesBtn.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
+  goToEntriesBtn.style.transition = "all 0.2s ease";
+  goToEntriesBtn.textContent = "Перейти к записям";
+  
+  goToEntriesBtn.addEventListener("mouseover", function() {
+    this.style.backgroundColor = "var(--button-primary-hover)";
+    this.style.transform = "translateY(-1px)";
+    this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.25)";
+  });
+  
+  goToEntriesBtn.addEventListener("mouseout", function() {
+    this.style.backgroundColor = "var(--button-primary)";
+    this.style.transform = "translateY(0)";
+    this.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
+  });
+  
+  goToEntriesBtn.addEventListener("click", () => {
     document.body.removeChild(backdrop);
     goToStep(5);
   });
+  
+  // Добавляем кнопки в контейнер
+  buttonsContainer.appendChild(cancelBtn);
+  buttonsContainer.appendChild(goToEntriesBtn);
+  
+  backdrop.appendChild(modal);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -597,3 +758,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Show intro screen
   goToStep(0);
 });
+

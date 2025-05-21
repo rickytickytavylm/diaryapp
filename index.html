@@ -9,6 +9,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="buttons.js" defer></script>
     <style>
       :root {
         /* Leo brand colors */
@@ -289,13 +290,30 @@
           </p>
         </div>
         <button
-          onclick="goToStep(1)"
-          class="w-full py-4 rounded-xl text-white btn" style="background-color: var(--button-primary); transition: all 0.3s ease;"
-          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-2px)';"
+          id="startButton"
+          class="w-full py-2 rounded-xl text-white btn text-sm font-medium" 
+          style="background-color: var(--button-primary); transition: all 0.3s ease;"
+          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-1px)';"
           onmouseout="this.style.backgroundColor = 'var(--button-primary)'; this.style.transform = 'translateY(0)';"
         >
           Перейти к дневнику
         </button>
+        
+        <div class="mt-4 text-center">
+          <button 
+            id="openDiaryButton0" 
+            class="inline-flex items-center gap-1 py-1.5 px-3 rounded-lg text-sm" 
+            style="background-color: rgba(212, 195, 255, 0.3); color: var(--text-color); border: 1px solid rgba(185, 162, 255, 0.4); transition: all 0.3s ease; font-weight: 500;"
+            onmouseover="this.style.backgroundColor = 'rgba(212, 195, 255, 0.5)'; this.style.transform = 'translateY(-1px)';"
+            onmouseout="this.style.backgroundColor = 'rgba(212, 195, 255, 0.3)'; this.style.transform = 'translateY(0)';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Открыть дневник</span>
+          </button>
+        </div>
       </div>
 
       <!-- Экран 1 — ситуация -->
@@ -309,14 +327,31 @@
           style="background-color: var(--input-bg); color: var(--input-text); border-color: var(--input-border);"
           placeholder="Что произошло?"
         ></textarea>
-        <button
-          onclick="validateAndGo(1, 'situation', 2)"
-          class="w-full py-4 rounded-xl text-white btn" style="background-color: var(--button-primary); transition: all 0.3s ease;"
-          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-2px)';"
+        <button 
+          id="nextStep1Button" 
+          class="w-full py-2 rounded-xl text-white btn text-sm font-medium" 
+          style="background-color: var(--button-primary); transition: all 0.3s ease;"
+          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-1px)';"
           onmouseout="this.style.backgroundColor = 'var(--button-primary)'; this.style.transform = 'translateY(0)';"
         >
           Далее
         </button>
+        
+        <div class="mt-4 text-center">
+          <button 
+            id="openDiaryButton" 
+            class="inline-flex items-center gap-1 py-1.5 px-3 rounded-lg text-sm" 
+            style="background-color: rgba(212, 195, 255, 0.3); color: var(--text-color); border: 1px solid rgba(185, 162, 255, 0.4); transition: all 0.3s ease; font-weight: 500;"
+            onmouseover="this.style.backgroundColor = 'rgba(212, 195, 255, 0.5)'; this.style.transform = 'translateY(-1px)';"
+            onmouseout="this.style.backgroundColor = 'rgba(212, 195, 255, 0.3)'; this.style.transform = 'translateY(0)';"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+            <span>Открыть дневник</span>
+          </button>
+        </div>
       </div>
 
       <!-- Экран 2 — мысли -->
@@ -331,9 +366,11 @@
           placeholder="Какие мысли были?"
         ></textarea>
         <button
+          id="nextStep2Button"
           onclick="validateAndGo(2, 'thoughts', 3)"
-          class="w-full py-4 rounded-xl text-white btn" style="background-color: var(--button-primary); transition: all 0.3s ease;"
-          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-2px)';"
+          class="w-full py-2 rounded-xl text-white btn text-sm font-medium" 
+          style="background-color: var(--button-primary); transition: all 0.3s ease;"
+          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-1px)';"
           onmouseout="this.style.backgroundColor = 'var(--button-primary)'; this.style.transform = 'translateY(0)';"
         >
           Далее
@@ -347,9 +384,11 @@
         </p>
         <div id="feelings" class="flex flex-wrap gap-2"></div>
         <button
+          id="nextStep3Button"
           onclick="goToStep(4)"
-          class="w-full py-4 rounded-xl text-white btn" style="background-color: var(--button-primary); transition: all 0.3s ease;"
-          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-2px)';"
+          class="w-full py-2 rounded-xl text-white btn text-sm font-medium" 
+          style="background-color: var(--button-primary); transition: all 0.3s ease;"
+          onmouseover="this.style.backgroundColor = 'var(--button-primary-hover)'; this.style.transform = 'translateY(-1px)';"
           onmouseout="this.style.backgroundColor = 'var(--button-primary)'; this.style.transform = 'translateY(0)';"
         >
           Далее
@@ -368,10 +407,12 @@
           placeholder="Что вы сделали и какие выводы?"
         ></textarea>
         <button
+          id="saveButton"
           onclick="validateAndSave()"
-          class="w-full py-3 rounded-xl text-white" style="background-color: var(--button-success); transition: background-color 0.3s ease;"
-          onmouseover="this.style.backgroundColor = 'var(--button-success-hover)'"
-          onmouseout="this.style.backgroundColor = 'var(--button-success)'"
+          class="w-full py-2 rounded-xl text-white text-sm font-medium" 
+          style="background-color: var(--button-success); transition: all 0.3s ease;"
+          onmouseover="this.style.backgroundColor = 'var(--button-success-hover)'; this.style.transform = 'translateY(-1px)';"
+          onmouseout="this.style.backgroundColor = 'var(--button-success)'; this.style.transform = 'translateY(0)';"
         >
           Сохранить запись
         </button>
