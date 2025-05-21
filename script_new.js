@@ -304,7 +304,41 @@ function openEntry(index) {
   const entries = JSON.parse(localStorage.getItem("diaryEntries") || "[]");
   const entry = entries[index];
   const container = document.getElementById("entryView");
-  container.textContent = `Ситуация:\n${entry.situation}\n\nМысли:\n${entry.thoughts}\n\nЧувства:\n${entry.feelings.join(", ")}\n\nИтог:\n${entry.outcome}`;
+  
+  // Форматируем дату, если она есть
+  let dateString = "";
+  if (entry.timestamp) {
+    const date = new Date(entry.timestamp);
+    dateString = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  
+  // Создаем HTML для компактного отображения записи
+  container.innerHTML = `
+    <div class="text-sm opacity-70 mb-2">${dateString}</div>
+    <div class="grid gap-2">
+      <div class="mb-2">
+        <h3 class="font-bold mb-0.5 text-sm">Ситуация:</h3>
+        <p class="whitespace-pre-wrap text-sm">${entry.situation}</p>
+      </div>
+      <div class="mb-2">
+        <h3 class="font-bold mb-0.5 text-sm">Мысли:</h3>
+        <p class="whitespace-pre-wrap text-sm">${entry.thoughts}</p>
+      </div>
+      <div class="mb-2">
+        <h3 class="font-bold mb-0.5 text-sm">Чувства:</h3>
+        <div class="flex flex-wrap gap-1">
+          ${entry.feelings.map(feeling => 
+            `<span class="px-2 py-0.5 text-xs rounded-xl" style="background-color: var(--tag-bg-selected); color: var(--tag-selected-text);">${feeling}</span>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="mb-1">
+        <h3 class="font-bold mb-0.5 text-sm">Итог:</h3>
+        <p class="whitespace-pre-wrap text-sm">${entry.outcome}</p>
+      </div>
+    </div>
+  `;
+  
   goToStep(6);
 }
 

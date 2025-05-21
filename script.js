@@ -515,87 +515,49 @@ window.openEntry = function(index) {
     dateString = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   }
   
-  // Создаем HTML для компактного отображения записи
+  // Создаем HTML для максимально компактного отображения записи без отступов
   container.innerHTML = `
-    <div class="text-sm opacity-70 mb-3">${dateString}</div>
-    
-    <div class="grid gap-3">
+    <div style="line-height: 1.1; margin-top: 0;">
+      <div class="text-xs opacity-70" style="margin: 0 0 2px 0;"><span class="font-bold">Дата:</span> ${dateString}</div>
       <div>
-        <h3 class="font-bold mb-1">Ситуация:</h3>
-        <p class="whitespace-pre-wrap">${entry.situation}</p>
+        <h3 class="font-bold text-xs inline">Ситуация:</h3>
+        <span class="text-xs">${entry.situation}</span>
       </div>
-      
       <div>
-        <h3 class="font-bold mb-1">Мысли:</h3>
-        <p class="whitespace-pre-wrap">${entry.thoughts}</p>
+        <h3 class="font-bold text-xs inline">Мысли:</h3>
+        <span class="text-xs">${entry.thoughts}</span>
       </div>
-      
       <div>
-        <h3 class="font-bold mb-1">Чувства:</h3>
-        <div class="flex flex-wrap gap-1">
+        <h3 class="font-bold text-xs inline">Чувства:</h3>
+        <span class="flex flex-wrap gap-0.5 inline">
           ${entry.feelings.map(feeling => 
-            `<span class="px-2 py-1 text-sm rounded-xl" style="background-color: var(--tag-bg-selected); color: var(--tag-selected-text);">${feeling}</span>`
+            `<span class="px-0.5 text-xs rounded" style="background-color: var(--tag-bg-selected); color: var(--tag-selected-text);">${feeling}</span>`
           ).join('')}
-        </div>
+        </span>
       </div>
-      
       <div>
-        <h3 class="font-bold mb-1">Итог:</h3>
-        <p class="whitespace-pre-wrap">${entry.outcome}</p>
+        <h3 class="font-bold text-xs inline">Итог:</h3>
+        <span class="text-xs">${entry.outcome}</span>
       </div>
     </div>
   `;
   
   // Добавляем кнопки
   const buttonsContainer = document.createElement("div");
-  buttonsContainer.className = "flex gap-2 mt-3";
+  buttonsContainer.className = "flex gap-0.5 mt-0.5";
   
-  // Кнопка копирования
-  const copyButton = document.createElement("button");
-  copyButton.className = "flex-1 py-1.5 px-2 rounded-lg text-white btn text-xs";
-  copyButton.style.backgroundColor = "var(--button-primary)";
-  copyButton.style.transition = "all 0.3s ease";
-  copyButton.style.fontWeight = "600";
-  copyButton.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
-  copyButton.style.maxWidth = "120px";
-  copyButton.innerHTML = `
-    <div class="flex items-center justify-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-      </svg>
-      <span>Скопировать</span>
-    </div>
-  `;
-  
-  copyButton.addEventListener("mouseover", function() {
-    this.style.backgroundColor = "var(--button-primary-hover)";
-    this.style.transform = "translateY(-1px)";
-    this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.25)";
-  });
-  
-  copyButton.addEventListener("mouseout", function() {
-    this.style.backgroundColor = "var(--button-primary)";
-    this.style.transform = "translateY(0)";
-    this.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
-  });
-  
-  copyButton.addEventListener("click", function() {
-    window.copyEntry(index);
-  });
-  
-  // Кнопка назад
+  // Кнопка назад (теперь первая)
   const backButton = document.createElement("button");
-  backButton.className = "flex-1 py-1.5 px-2 rounded-lg btn text-xs";
+  backButton.className = "flex-1 py-0 px-1 rounded text-xs";
   backButton.style.backgroundColor = "var(--button-secondary)";
   backButton.style.color = "var(--text-color)";
-  backButton.style.transition = "all 0.3s ease";
-  backButton.style.fontWeight = "600";
-  backButton.style.boxShadow = "0 1px 3px rgba(58, 42, 109, 0.2)";
-  backButton.style.maxWidth = "120px";
+  backButton.style.transition = "all 0.2s ease";
+  backButton.style.fontWeight = "400";
+  backButton.style.boxShadow = "none";
+  backButton.style.maxWidth = "60px";
   backButton.innerHTML = `
-    <div class="flex items-center justify-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="flex items-center justify-center gap-0.5">
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
@@ -606,21 +568,52 @@ window.openEntry = function(index) {
   backButton.addEventListener("mouseover", function() {
     this.style.backgroundColor = "var(--button-secondary-hover)";
     this.style.transform = "translateY(-1px)";
-    this.style.boxShadow = "0 3px 6px rgba(58, 42, 109, 0.25)";
   });
   
   backButton.addEventListener("mouseout", function() {
     this.style.backgroundColor = "var(--button-secondary)";
     this.style.transform = "translateY(0)";
-    this.style.boxShadow = "0 2px 4px rgba(58, 42, 109, 0.2)";
   });
   
   backButton.addEventListener("click", function() {
     goToStep(5);
   });
   
-  buttonsContainer.appendChild(copyButton);
+  // Кнопка копирования (теперь вторая)
+  const copyButton = document.createElement("button");
+  copyButton.className = "flex-1 py-0 px-1 rounded text-white text-xs";
+  copyButton.style.backgroundColor = "var(--button-primary)";
+  copyButton.style.transition = "all 0.2s ease";
+  copyButton.style.fontWeight = "400";
+  copyButton.style.boxShadow = "none";
+  copyButton.style.maxWidth = "60px";
+  copyButton.innerHTML = `
+    <div class="flex items-center justify-center gap-0.5">
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+      </svg>
+      <span>Скопировать</span>
+    </div>
+  `;
+  
+  copyButton.addEventListener("mouseover", function() {
+    this.style.backgroundColor = "var(--button-primary-hover)";
+    this.style.transform = "translateY(-1px)";
+  });
+  
+  copyButton.addEventListener("mouseout", function() {
+    this.style.backgroundColor = "var(--button-primary)";
+    this.style.transform = "translateY(0)";
+  });
+  
+  copyButton.addEventListener("click", function() {
+    window.copyEntry(index);
+  });
+  
+  // Добавляем кнопки в обратном порядке
   buttonsContainer.appendChild(backButton);
+  buttonsContainer.appendChild(copyButton);
   container.appendChild(buttonsContainer);
   
   goToStep(6);
